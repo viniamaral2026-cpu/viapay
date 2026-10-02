@@ -1,0 +1,23 @@
+{
+  "name": "viapay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ViaPay Payment Settlement Infrastructure",
+  "packageManager": "pnpm@10",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "postinstall": "prisma skills sync || exit 0"
+  },
+  "devDependencies": {
+    "@prisma/client": "^7.10.0",
+    "prettier": "latest",
+    "prisma": "8.0.0-rc.19",
+    "turbo": "latest"
+  }
+}

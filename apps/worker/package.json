@@ -1,0 +1,29 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/worker.js",
+  "scripts": {
+    "dev": "tsx watch src/worker.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/worker.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "pino": "^10.3.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "private": true,
+  "types": "dist/worker.d.ts"
+}
