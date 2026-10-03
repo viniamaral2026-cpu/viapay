@@ -1,0 +1,13 @@
+{
+  "scenario": "success",
+  "description": "Simulates a successfully confirmed payment.",
+  "states": [
+    "CREATED",
+    "AWAITING_PAYMENT",
+    "PAYMENT_DETECTED",
+    "VERIFYING",
+    "CONFIRMED",
+    "SETTLEMENT_PENDING",
+    "SETTLED"
+  ]
+}

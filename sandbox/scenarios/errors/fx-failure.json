@@ -1,0 +1,5 @@
+{
+  "scenario": "fx_failure",
+  "description": "Simulates FX provider failure.",
+  "expected_status": "FAILED"
+}

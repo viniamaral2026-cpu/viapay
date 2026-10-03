@@ -1,0 +1,24 @@
+sequenceDiagram
+
+```
+participant Client
+participant API
+participant Payment
+participant Risk
+participant Ledger
+participant Settlement
+participant Provider
+
+Client->>API: Create Payment
+API->>Payment: Validate
+Payment->>Risk: Evaluate
+Risk-->>Payment: ALLOW
+Payment->>Ledger: Post Transaction
+Ledger-->>Payment: Posted
+Payment->>Settlement: Create Instruction
+Settlement->>Provider: Submit
+Provider-->>Settlement: Confirmation
+Settlement-->>Payment: Settled
+Payment-->>API: Success
+```
+

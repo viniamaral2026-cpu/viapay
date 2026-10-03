@@ -1,0 +1,39 @@
+{
+"$schema": "[https://json-schema.org/draft/2020-12/schema](https://json-schema.org/draft/2020-12/schema)",
+"$id": "[https://viapay.example/schemas/event.json](https://viapay.example/schemas/event.json)",
+"title": "Event Envelope",
+"type": "object",
+"required": [
+"event_id",
+"event_type",
+"version",
+"occurred_at",
+"tenant_id",
+"correlation_id",
+"data"
+],
+"properties": {
+"event_id": {
+"type": "string"
+},
+"event_type": {
+"type": "string"
+},
+"version": {
+"type": "integer"
+},
+"occurred_at": {
+"type": "string",
+"format": "date-time"
+},
+"tenant_id": {
+"type": "string"
+},
+"correlation_id": {
+"type": "string"
+},
+"data": {
+"type": "object"
+}
+}
+}

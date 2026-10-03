@@ -1,0 +1,136 @@
+openapi: 3.0.3
+
+info:
+  title: ViaPay Sandbox API
+  version: 1.0.0
+  description: |
+    Developer Sandbox API for ViaPay.
+    This environment does not move real funds.
+
+servers:
+  - url: https://sandbox.api.viapay.example
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+
+  /api/v1/sandbox/payment-intents:
+    post:
+      summary: Create a sandbox payment intent
+      operationId: createPaymentIntent
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentIntentCreate'
+      responses:
+        '201':
+          description: Payment intent created
+
+  /api/v1/sandbox/payment-intents/{id}:
+    get:
+      summary: Retrieve payment intent
+      operationId: getPaymentIntent
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      responses:
+        '200':
+          description: Payment intent
+
+  /api/v1/sandbox/payment-intents/{id}/simulate:
+    post:
+      summary: Execute sandbox payment scenario
+      operationId: simulatePayment
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationRequest'
+      responses:
+        '202':
+          description: Simulation accepted
+
+  /api/v1/sandbox/fx/quotes:
+    post:
+      summary: Create sandbox FX quote
+      operationId: createFxQuote
+      responses:
+        '201':
+          description: FX quote created
+
+  /api/v1/sandbox/webhooks/test:
+    post:
+      summary: Send a test webhook
+      operationId: sendTestWebhook
+      responses:
+        '202':
+          description: Webhook scheduled
+
+components:
+
+  securitySchemes:
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-ViaPay-Api-Key
+
+  parameters:
+
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PaymentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+
+    PaymentIntentCreate:
+      type: object
+      required:
+        - merchant_id
+        - amount
+        - currency
+      properties:
+        merchant_id:
+          type: string
+        amount:
+          type: string
+        currency:
+          type: string
+          example: BRL
+        description:
+          type: string
+
+    SimulationRequest:
+      type: object
+      required:
+        - scenario
+      properties:
+        scenario:
+          type: string
+          enum:
+            - success
+            - payment_failed
+            - expired
+            - duplicate
+            - webhook_failure
+            - settlement_failure
+            - fx_failure
+            - rpc_timeout

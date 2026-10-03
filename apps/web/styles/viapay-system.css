@@ -1,0 +1,170 @@
+:root {
+  --viapay-blue: #0b5fff;
+  --viapay-blue-600: #2563eb;
+  --viapay-cyan: #06b6d4;
+  --viapay-background: #ffffff;
+  --viapay-surface: #f8fafc;
+  --viapay-border: #e2e8f0;
+  --viapay-text: #0f172a;
+  --viapay-muted: #64748b;
+  --viapay-success: #16a34a;
+  --viapay-warning: #d97706;
+  --viapay-danger: #dc2626;
+  --viapay-radius: 12px;
+}
+
+.viapay-page {
+  min-height: 100vh;
+  background: var(--viapay-background);
+  color: var(--viapay-text);
+}
+
+.viapay-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 32px;
+  border-bottom: 1px solid var(--viapay-border);
+}
+
+.viapay-page-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.viapay-page-header p {
+  margin-top: 8px;
+  color: var(--viapay-muted);
+}
+
+.viapay-content {
+  padding: 32px;
+}
+
+.viapay-card {
+  background: white;
+  border: 1px solid var(--viapay-border);
+  border-radius: var(--viapay-radius);
+  padding: 24px;
+}
+
+.viapay-app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.viapay-sidebar {
+  width: 260px;
+  border-right: 1px solid var(--viapay-border);
+  background: white;
+  padding: 24px;
+}
+
+.viapay-brand {
+  color: var(--viapay-blue);
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 32px;
+}
+
+.viapay-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.viapay-sidebar a {
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--viapay-text);
+  text-decoration: none;
+}
+
+.viapay-sidebar a:hover {
+  background: #eff6ff;
+  color: var(--viapay-blue);
+}
+
+.viapay-main {
+  flex: 1;
+}
+
+.viapay-topbar {
+  height: 64px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--viapay-border);
+}
+
+.viapay-main-content {
+  min-height: calc(100vh - 64px);
+}
+
+.viapay-metric-card {
+  border: 1px solid var(--viapay-border);
+  border-radius: var(--viapay-radius);
+  padding: 20px;
+  background: white;
+}
+
+.viapay-metric-card span,
+.viapay-metric-card small {
+  display: block;
+  color: var(--viapay-muted);
+}
+
+.viapay-metric-card strong {
+  display: block;
+  margin: 8px 0;
+  font-size: 28px;
+}
+
+.viapay-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.viapay-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.viapay-table-wrapper th,
+.viapay-table-wrapper td {
+  text-align: left;
+  padding: 14px;
+  border-bottom: 1px solid var(--viapay-border);
+}
+
+.viapay-empty-state {
+  padding: 64px 32px;
+  text-align: center;
+}
+
+.viapay-checkout {
+  width: min(720px, 100%);
+  margin: 40px auto;
+  padding: 32px;
+  border: 1px solid var(--viapay-border);
+  border-radius: 16px;
+  background: white;
+}
+
+.viapay-checkout > header {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.viapay-checkout > header span {
+  color: var(--viapay-muted);
+}
+
+.viapay-checkout > header span.active {
+  color: var(--viapay-blue);
+  font-weight: 700;
+}

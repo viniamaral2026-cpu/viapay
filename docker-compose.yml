@@ -1,0 +1,64 @@
+services:
+
+  postgres:
+    image: postgres:18
+    container_name: viapay-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: viapay
+      POSTGRES_PASSWORD: viapay
+      POSTGRES_DB: viapay
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - viapay_postgres_data:/var/lib/postgresql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U viapay -d viapay"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    container_name: viapay-redis
+    restart: unless-stopped
+
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes"
+      ]
+
+    ports:
+      - "6380:6379"
+
+    volumes:
+      - viapay_redis_data:/data
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+
+  viapay_postgres_data:
+    name: viapay_postgres_data
+
+  viapay_redis_data:
+    name: viapay_redis_data

@@ -1,0 +1,25 @@
+# CHECKLIST DE AUDITORIA FINAL
+
+- [ ] TypeScript
+- [ ] Lint
+- [ ] Build
+- [ ] Unit
+- [ ] Integration
+- [ ] Contract
+- [ ] E2E
+- [ ] Security
+- [ ] Accessibility
+- [ ] Performance
+- [ ] API
+- [ ] Database
+- [ ] Migrations
+- [ ] Webhooks
+- [ ] Queues
+- [ ] Workers
+- [ ] Settlement
+- [ ] Reconciliation
+- [ ] RBAC
+- [ ] Observability
+- [ ] Regra ../../
+- [ ] Backups
+- [ ] Documentação

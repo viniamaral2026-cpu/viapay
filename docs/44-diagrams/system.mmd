@@ -1,0 +1,32 @@
+flowchart TB
+
+```
+CLIENT[Cliente]
+BANK[Banco / Fintech / PSP]
+API[API Gateway]
+AUTH[Identity]
+PAYMENT[Payment Engine]
+RISK[Risk Engine]
+FX[FX Engine]
+LEDGER[Double Entry Ledger]
+SETTLEMENT[Settlement Engine]
+RECON[Reconciliation]
+BANKADAPTER[Bank Adapter]
+BLOCKCHAIN[Blockchain Adapter]
+LEGACY[Legacy / COBOL Adapter]
+
+CLIENT --> BANK
+BANK --> API
+API --> AUTH
+API --> PAYMENT
+PAYMENT --> RISK
+PAYMENT --> FX
+PAYMENT --> LEDGER
+LEDGER --> SETTLEMENT
+SETTLEMENT --> BANKADAPTER
+SETTLEMENT --> BLOCKCHAIN
+BANKADAPTER --> LEGACY
+SETTLEMENT --> RECON
+LEDGER --> RECON
+```
+

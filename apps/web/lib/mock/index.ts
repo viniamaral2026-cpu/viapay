@@ -1,0 +1,5 @@
+/**
+ * ViaPay Library Module
+ */
+
+export {};

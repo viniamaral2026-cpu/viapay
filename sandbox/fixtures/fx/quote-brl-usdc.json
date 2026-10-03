@@ -1,0 +1,11 @@
+{
+  "id": "fxq_sandbox_000001",
+  "base_currency": "BRL",
+  "quote_currency": "USDC",
+  "base_amount": "109.00",
+  "quote_amount": "19.00",
+  "rate": "0.1743119",
+  "fee": "0.50",
+  "status": "LOCKED",
+  "environment": "sandbox"
+}

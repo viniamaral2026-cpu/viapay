@@ -1,0 +1,37 @@
+{
+"$schema": "[https://json-schema.org/draft/2020-12/schema](https://json-schema.org/draft/2020-12/schema)",
+"$id": "[https://viapay.example/schemas/payment.json](https://viapay.example/schemas/payment.json)",
+"title": "Payment",
+"type": "object",
+"required": [
+"source_account_id",
+"destination_account_id",
+"amount"
+],
+"properties": {
+"source_account_id": {
+"type": "string"
+},
+"destination_account_id": {
+"type": "string"
+},
+"amount": {
+"type": "object",
+"required": [
+"value",
+"currency"
+],
+"properties": {
+"value": {
+"type": "integer",
+"minimum": 1
+},
+"currency": {
+"type": "string",
+"minLength": 3,
+"maxLength": 3
+}
+}
+}
+}
+}

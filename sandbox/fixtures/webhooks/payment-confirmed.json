@@ -1,0 +1,13 @@
+{
+  "id": "evt_sandbox_000001",
+  "type": "payment.confirmed",
+  "version": "2026-10-01",
+  "created_at": "2026-10-03T12:00:00Z",
+  "data": {
+    "payment_id": "pi_sandbox_000001",
+    "merchant_id": "mrc_sandbox_000001",
+    "amount": "109.00",
+    "currency": "BRL",
+    "status": "CONFIRMED"
+  }
+}

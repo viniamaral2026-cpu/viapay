@@ -1,0 +1,5 @@
+{
+  "scenario": "rpc_timeout",
+  "description": "Simulates blockchain RPC timeout.",
+  "expected_status": "REQUIRES_REVIEW"
+}

@@ -1,0 +1,5 @@
+/**
+ * ViaPay API boundary.
+ */
+
+export {};

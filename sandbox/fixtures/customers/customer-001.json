@@ -1,0 +1,7 @@
+{
+  "id": "cus_sandbox_000001",
+  "name": "Sandbox Customer",
+  "email": "customer@example.test",
+  "environment": "sandbox",
+  "status": "ACTIVE"
+}

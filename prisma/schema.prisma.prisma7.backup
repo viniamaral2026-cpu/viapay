@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PaymentStatus {
+  CREATED
+  PIX_PENDING
+  PIX_PAID
+  SETTLEMENT_PENDING
+  SETTLING
+  SETTLED
+  FAILED
+  EXPIRED
+}
+
+enum PixChargeStatus {
+  CREATED
+  ACTIVE
+  PAID
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
+enum PaymentEventType {
+  CREATED
+  PIX_CREATED
+  PIX_PAID
+  PIX_EXPIRED
+  SETTLEMENT_PENDING
+  SETTLEMENT_STARTED
+  SETTLED
+  FAILED
+}
+
+model Merchant {
+  id          String    @id
+  name        String
+  document    String?   @unique
+  wallet      String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  payments    Payment[]
+
+  @@index([active])
+  @@index([createdAt])
+  @@map("merchants")
+}
+
+model Payment {
+  id             String        @id
+  merchantId     String
+  amountBRLMinor BigInt
+  merchantWallet String
+  status         PaymentStatus
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  merchant       Merchant      @relation(fields: [merchantId], references: [id])
+  pixCharge      PixCharge?
+  events         PaymentEvent[]
+
+  @@index([merchantId])
+  @@index([status])
+  @@index([merchantWallet])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+model PixCharge {
+  id            String          @id
+  paymentId     String          @unique
+  provider      String
+  providerId    String?
+  qrCode        String
+  qrCodeImage   String?
+  amountBRLMinor BigInt
+  status        PixChargeStatus
+  expiresAt     DateTime
+  paidAt        DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  payment       Payment         @relation(fields: [paymentId], references: [id])
+
+  @@index([provider])
+  @@index([providerId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("pix_charges")
+}
+
+model PaymentEvent {
+  id          String           @id
+  paymentId   String
+  type        PaymentEventType
+  externalId  String?
+  payload     Json?
+  occurredAt  DateTime
+  createdAt   DateTime         @default(now())
+
+  payment     Payment          @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@index([type])
+  @@index([externalId])
+  @@index([occurredAt])
+  @@map("payment_events")
+}

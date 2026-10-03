@@ -1,0 +1,6 @@
+# STATUS
+
+Estados sugeridos:
+CREATED, PENDING, PROCESSING, SUCCEEDED, FAILED, CANCELLED, EXPIRED, PARTIALLY_REFUNDED, REFUNDED.
+
+Transições devem ser explícitas.

@@ -1,24 +1,18 @@
-import { DashboardShell } from "@/components/dashboard/DashboardShell/DashboardShell";
-import { Card } from "@/components/Card/Card";
+import { CodeBlock } from "@/components/developer/CodeBlock";
+import { DocsSidebar } from "@/components/developer/DocsSidebar";
 
-export default function DocumentacaoPage() {
+export default function DashboardDocumentationPage() {
   return (
-    <DashboardShell>
-      <header className="border-b bg-white px-6 py-5">
-        <h1 className="text-2xl font-bold">Documentacao</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Gerencie sua operação ViaPay.
-        </p>
-      </header>
-
-      <div className="p-6">
-        <Card className="p-8">
-          <h2 className="font-bold">Área Documentacao</h2>
-          <p className="mt-2 text-sm text-slate-500">
-            Componente preparado para integração com a API ViaPay.
-          </p>
-        </Card>
-      </div>
-    </DashboardShell>
+    <div className="grid min-h-screen lg:grid-cols-[240px_1fr]">
+      <DocsSidebar />
+      <main className="p-6 lg:p-12">
+        <div className="mx-auto max-w-4xl">
+          <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">Documentação</span>
+          <h1 className="mt-3 text-4xl font-bold">Comece em 5 linhas</h1>
+          <p className="mt-3 text-slate-500">Instale o SDK e comece a aceitar Pix.</p>
+          <CodeBlock />
+        </div>
+      </main>
+    </div>
   );
 }

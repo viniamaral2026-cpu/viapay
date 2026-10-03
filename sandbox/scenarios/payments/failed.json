@@ -1,0 +1,9 @@
+{
+  "scenario": "payment_failed",
+  "description": "Simulates a failed payment.",
+  "states": [
+    "CREATED",
+    "AWAITING_PAYMENT",
+    "FAILED"
+  ]
+}

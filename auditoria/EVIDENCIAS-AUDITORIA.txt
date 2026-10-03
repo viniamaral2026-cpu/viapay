@@ -1,0 +1,201 @@
+AUDITORIA TÉCNICA VIAPAY - EVIDENCIAS
+=======================================
+
+=== COMANDOS EXECUTADOS ===
+
+$ pwd
+/mnt/ai-knowledge/viapay
+
+$ git status
+No ramo main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  modified:   .env.example
+  modified:   package.json
+  modified:   pnpm-lock.yaml
+  modified:   pnpm-workspace.yaml
+  modified:   prisma.config.ts
+
+Arquivos não monitorados:
+  .agents/skills/prisma-8/
+  .claude/skills/prisma-8/
+  .cursor/skills/prisma-8/
+  .devin/skills/prisma-8/
+  .gitattributes
+  backup/
+  docker-compose.yml
+  infrastructure/
+  prisma/
+  scripts/db-connection-test.ts
+  scripts/smoke-test.ts
+  src/
+  tests/
+  tsconfig.json
+
+$ git branch --show-current
+main
+
+$ node --version
+v22.23.2
+
+$ pnpm --version
+12.8.1
+
+$ pnpm exec tsc --version
+Version 7.0.2
+
+$ pnpm exec prisma --version
+prisma             : 7.10.0
+@prisma/client     : 7.10.0
+Operating System   : linux
+Architecture       : x64
+Node.js            : v22.23.2
+TypeScript         : 7.0.2
+Query Compiler     : enabled
+PSL                : @prisma/prisma-schema-wasm 7.10.0-4.0edf323efd1d98336f3f0a68684b56f689b900d3
+Prisma CLI Path    : (caminho node_modules)
+Default Engines Hash: 0edf323efd1d98336f3f0a68684b56f689b900d3
+Studio               : 0.33.0
+Prisma CLI Path   : /mnt/ai-knowledge/viapay/node_modules/.pnpm/prisma@7.10.0_@types+react-dom@19.3.0_@types+react@19.3.0__@types+react@19.3.0_react-do_da275f5e2eaf8f04eac7c7bccb2dd8bd/node_modules/prisma
+
+=== ERROS TSC --NOEMIT (total) ===
+Linha total: 405+ linhas de erros
+
+Principais categorias:
+- TS5023: Unknown compiler option 'include'/'exclude' (2 erros)
+- TS2724: Alias @/infrastructure/... has no exported member (1 erro)
+- TS2307: Cannot find module '@/components/...' (muitos erros nos apps web)
+- TS2322: Type mismatch JsonNull vs InputJsonValue (1 erro)
+- TS2416/TS2420/TS2532/TS2741: Mismatches interface/implementação em testes (vários)
+- TS17004: JSX flag missing (muitos erros nos apps Next.js)
+
+=== ESTRUTURA DO PROJETO ===
+
+Aplicativos (4):
+- apps/api: Fastify + Swagger (porta 3001)
+- apps/web: Next.js 16 + React 19 + Tailwind CSS v4
+- apps/demo-store: Next.js 16 + React 19 + Tailwind CSS v4
+- apps/worker: TypeScript + pino + zod
+
+Pacotes (7):
+- packages/application: Casos de uso & ports
+- packages/domain: Entidades & regras de negócio
+- packages/infrastructure: Implementações (Redis, provedores, repositórios)
+- packages/contracts: DTOs & eventos API
+- packages/shared: Utilitários (type Result)
+- packages/sdk: SDK público cliente
+- packages/config: Vazio (0 entries)
+
+=== ALIASES TSConfig ===
+
+Root tsconfig.json paths:
+- @/* -> ./src/*
+- @domain/* -> ./src/domain/*
+- @application/* -> ./src/application/*
+- @infrastructure/* -> ./src/infrastructure/*
+- @prisma/* -> ./src/prisma/*
+- @tests/* -> ./tests/*
+
+Problema identificado: erro TS2724 em process-settlement.ts linha 12 -
+"@/infrastructure/repositories/prisma-payment-event-transaction-repository.js"
+tem no exported member named 'PaymentEventTransactionRepository'.
+
+=== IMPORTS ../../ ===
+
+Nenhum import `../../` encontrado em src/, apps/, packages/ (arquivos .ts/.tsx ativos).
+Imports `../../` encontrados apenas em diretórios de backup:
+- backup/.backup-before-no-relative-imports-20261003-100153/tests/...
+- backup/.backup/architecture-fix-20261003-094224/...
+
+=== PRISMA ===
+
+- Versão: Prisma 7.10.0
+- Schema: prisma/schema.prisma (5 models, 4 enums)
+- Datasource: PostgreSQL
+- Config: prisma.config.ts (defineConfig com DATABASE_URL)
+- Migrations: 2 (init + add_settlements)
+- NÃO executar: migration ou db push durante auditoria
+- Erro de tipo: JsonNull vs InputJsonValue em prisma-payment-event-transaction-repository.ts:70
+
+=== DOMAIN ===
+
+- Payment: classe com transitionTo() e matrix de transições estrita
+- PaymentStatus: union type ("CREATED" | "PIX_PENDING" | "PIX_PAID" | "SETTLEMENT_PENDING" | "SETTLED" | "FAILED" | "EXPIRED")
+- Settlement: classe com status PENDING→PROCESSING→SETTLED/FAILED/CANCELLED
+- PaymentEvent: classe com type e externalId único
+- Aviso: Duas definições de PaymentStatus e Payment entity (src/ vs packages/)
+
+=== APPLICATION ===
+
+- CreatePayment: cria pagamento → PIX_PENDING → gera charge PIX
+- GetPayment: busca por ID
+- HandlePixPayment: PIX_PENDING → PIX_PAID → SETTLEMENT_PENDING
+- ProcessSettlement: PENDING → PROCESSING → SETTLED (com UnitOfWork + FOR UPDATE)
+- UnitOfWork: injetado via container, execute() com transação
+- Problemas: InMemory repositórios não implementam interfaces completamente
+
+=== INFRAESTRUCTURE ===
+
+- RedisClient: class com ioredis (connect, get, set, del, exists, ping, quit)
+- RedisCache: implements Cache port com TTL
+- FakePixProvider: implements PixProvider (gera pix_ QRCode, expiry 30min)
+- InMemoryPaymentRepository: implements PaymentRepository (save, findById)
+- InMemorySettlementLockRepository: MISMATCH - save() signature incompatible com interface
+- InMemoryPaymentEventRepository: FALTANDO countByPaymentId() na interface
+- PrismaPaymentEventTransactionRepository: Type mismatch JsonNull/InputJsonValue lin 70
+- ExchangeProvider: diretório vazio - não implementado
+- SolanaProvider: implementação parcial (client/, settlement/, wallet/)
+
+=== SETTLEMENT FLOW ===
+
+Request → ProcessSettlement Use Case → UnitOfWork.execute() →
+settlementLockRepository.findByIdForUpdate(tx, id) → FOR UPDATE →
+status checks → PaymentEventRepository find/create → save → Commit/Rollback
+
+=== TESTES ===
+
+- Unit: tests/unit/ (InMemory repositórios)
+- Integration: tests/integration/ (PostgreSQL required)
+- E2E: tests/e2e/
+- Problemas: InMemory repositórios com assinaturas incompatíveis com interfaces
+- Alguns testes exigem --passWithNoTests
+
+=== BACKUPS ===
+
+Múltiplos diretórios de backup encontrados:
+- backup/.backup-before-no-relative-imports-20261003-100153/
+- backup/.backup/
+- backup/.backup/architecture-fix-20261003-094224/
+- .backup-architecture/
+- .backup-concurrency-20261003-092734/
+
+NÃO mover nem apagar durante auditoria.
+
+=== GIT ===
+
+- Ramo: main
+- Arquivos modificados (não staged): .env.example, package.json, pnpm-lock.yaml, pnpm-workspace.yaml, prisma.config.ts
+- Arquivos não rastreados: .agents/, .claude/, .cursor/, .devin/, backup/, prisma/, scripts/, src/, tests/, tsconfig.json
+
+=== SEGURANÇA ===
+
+- .env: presente (valores não revelados)
+- .env.example: modificado (ver git status) - deve conter apenas nomes de variáveis
+- Variáveis esperadas: DATABASE_URL, REDIS_URL
+
+=== RESUMO ===
+
+Principais problemas:
+1. TS5023 no tsconfig.json (include/exclude unknown)
+2. Alias @/ quebrado em process-settlement.ts
+3. Mismatches Prisma JsonNull/InputJsonValue
+4. InMemory repositórios com interfaces incompletas
+5. Duplicação src/ vs packages/
+6. ExchangeProvider vazio
+7. Testes unitários quebando por interface/implementação mismatch
+
+Arquivos gerados:
+- /mnt/ai-knowledge/viapay/auditoria/RELATORIO-AUDITORIA-VIAPAY.md
+- /mnt/ai-knowledge/viapay/auditoria/EVIDENCIAS-AUDITORIA.txt (este arquivo)
+- /mnt/ai-knowledge/viapay/auditoria/RESUMO-AUDITORIA.md (pendente de criação)

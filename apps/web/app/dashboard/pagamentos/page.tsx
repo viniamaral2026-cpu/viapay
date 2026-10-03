@@ -1,54 +1,18 @@
-import Link from "next/link";
-import { DashboardShell } from "@/components/dashboard/DashboardShell/DashboardShell";
-import { Card } from "@/components/Card/Card";
-
-const payments = [
-  ["pay_001", "Cliente A", "R$ 100,00", "18,42 USDC"],
-  ["pay_002", "Cliente B", "R$ 250,00", "46,10 USDC"],
-  ["pay_003", "Cliente C", "R$ 80,00", "14,73 USDC"],
-];
+import { Download, Filter, Search } from "lucide-react";
+import { PaymentTable } from "@/components/dashboard/PaymentTable";
 
 export default function PagamentosPage() {
   return (
-    <DashboardShell>
-      <header className="border-b bg-white px-6 py-5">
-        <h1 className="text-2xl font-bold">Pagamentos</h1>
-      </header>
-
-      <div className="p-6">
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-5 py-4">ID</th>
-                  <th className="px-5 py-4">Cliente</th>
-                  <th className="px-5 py-4">BRL</th>
-                  <th className="px-5 py-4">USDC</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {payments.map(([id, customer, brl, usdc]) => (
-                  <tr key={id} className="border-t">
-                    <td className="px-5 py-4">
-                      <Link
-                        href={`/dashboard/pagamentos/${id}`}
-                        className="font-semibold text-blue-600"
-                      >
-                        {id}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-4">{customer}</td>
-                    <td className="px-5 py-4">{brl}</td>
-                    <td className="px-5 py-4">{usdc}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+    <>
+      <header className="border-b bg-white px-6 py-6"><h1 className="text-2xl font-bold">Pagamentos</h1><p className="mt-1 text-sm text-slate-500">Acompanhe todos os seus pagamentos em tempo real.</p></header>
+      <div className="mx-auto max-w-7xl space-y-5 p-6">
+        <div className="flex flex-col gap-3 md:flex-row">
+          <div className="relative flex-1"><Search className="absolute left-3 top-3 text-slate-400" size={18} /><input className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm" placeholder="Buscar por ID, cliente ou valor..." /></div>
+          <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold"><Filter size={17} />Filtro</button>
+          <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold"><Download size={17} />Exportar</button>
+        </div>
+        <div className="overflow-x-auto"><PaymentTable /></div>
       </div>
-    </DashboardShell>
+    </>
   );
 }

@@ -1,0 +1,7 @@
+{
+  "id": "acc_sandbox_000001",
+  "type": "TEST_SETTLEMENT",
+  "currency": "BRL",
+  "balance": "100000.00",
+  "environment": "sandbox"
+}

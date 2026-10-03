@@ -1,0 +1,12 @@
+{
+  "contract": "PaymentRequest",
+  "version": "1.0",
+  "target": "COBOL",
+  "fields": {
+    "sourceAccountId": "SOURCE-ACCOUNT",
+    "destinationAccountId": "DESTINATION-ACCOUNT",
+    "amount": "AMOUNT",
+    "currency": "CURRENCY",
+    "reference": "REFERENCE"
+  }
+}

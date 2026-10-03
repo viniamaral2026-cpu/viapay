@@ -1,0 +1,8 @@
+{
+  "id": "pi_sandbox_success",
+  "merchant_id": "mrc_sandbox_000001",
+  "amount": "109.00",
+  "currency": "BRL",
+  "status": "CONFIRMED",
+  "scenario": "success"
+}

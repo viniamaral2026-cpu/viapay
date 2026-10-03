@@ -1,0 +1,5 @@
+{
+  "scenario": "settlement_failure",
+  "description": "Simulates settlement failure.",
+  "expected_status": "SETTLEMENT_FAILED"
+}

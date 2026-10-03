@@ -1,0 +1,9 @@
+export interface Customer {
+  id: string;
+  name: string;
+  email?: string;
+  document?: string;
+  phone?: string;
+  createdAt: string;
+  updatedAt: string;
+}

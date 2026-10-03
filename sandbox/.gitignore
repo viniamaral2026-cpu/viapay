@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+!.env.sandbox.example
+
+*.key
+*.pem
+*.crt
+
+secrets/
+credentials/
+
+logs/*.log

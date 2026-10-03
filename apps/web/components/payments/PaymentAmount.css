@@ -1,0 +1,9 @@
+.vp-component {
+  width: 100%;
+}
+
+.vp-component h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 650;
+}

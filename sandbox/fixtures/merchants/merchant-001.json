@@ -1,0 +1,9 @@
+{
+  "id": "mrc_sandbox_000001",
+  "name": "Sandbox Merchant",
+  "legal_name": "Sandbox Merchant LTDA",
+  "country": "BR",
+  "currency": "BRL",
+  "environment": "sandbox",
+  "status": "ACTIVE"
+}

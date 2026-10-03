@@ -1,0 +1,9 @@
+{
+  "scenario": "expired",
+  "description": "Simulates an expired payment intent.",
+  "states": [
+    "CREATED",
+    "AWAITING_PAYMENT",
+    "EXPIRED"
+  ]
+}
