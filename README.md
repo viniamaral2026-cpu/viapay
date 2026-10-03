@@ -1,1347 +1,2088 @@
 # ViaPay
 
-Plataforma de pagamentos e infraestrutura financeira construída com arquitetura modular, princípios de Clean Architecture, separação de responsabilidades e componentes preparados para evolução para ambientes distribuídos.
+<p align="center">
+  <img src="./docs/assets/viapay-logo.svg" alt="ViaPay" width="180">
+</p>
 
-O ViaPay foi estruturado como um monorepo TypeScript com separação explícita entre domínio, aplicação, infraestrutura, contratos, SDK e API.
+<p align="center">
+  <strong>Payment Settlement Infrastructure</strong>
+</p>
+
+<p align="center">
+  Infraestrutura tecnológica para pagamentos, processamento, roteamento,
+  liquidação, integração com parceiros financeiros e settlement digital.
+</p>
+
+<p align="center">
+
+![Status](https://img.shields.io/badge/status-active%20development-2563EB)
+![Architecture](https://img.shields.io/badge/architecture-modular-06B6D4)
+![Frontend](https://img.shields.io/badge/frontend-Next.js-000000)
+![Runtime](https://img.shields.io/badge/runtime-Node.js-339933)
+![TypeScript](https://img.shields.io/badge/language-TypeScript-3178C6)
+![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL-4169E1)
+![Redis](https://img.shields.io/badge/cache-Redis-DC382D)
+![RabbitMQ](https://img.shields.io/badge/messaging-RabbitMQ-FF6600)
+![Docker](https://img.shields.io/badge/container-Docker-2496ED)
+
+</p>
 
 ---
 
-## Status do Projeto
+# 1. Visão geral
 
-> **Status:** Em desenvolvimento ativo
-
-A infraestrutura principal da API já possui:
-
-- API HTTP baseada em Fastify
-- Health Check
-- Documentação OpenAPI/Swagger
-- CORS
-- Helmet
-- Redis
-- Camada de cache
-- Infraestrutura de pagamentos em memória
-- Fake PIX Provider para desenvolvimento
-- Casos de uso de pagamentos
-- PostgreSQL preparado para integração
-- Solana/USDC preparado para integração
-- Arquitetura modular em monorepo
-- TypeScript strict-ready
-- Testes automatizados com Vitest
-
-### Validações atuais
-
-A infraestrutura Redis foi validada com sucesso:
+O ViaPay é uma plataforma de infraestrutura financeira e de pagamentos projetada para conectar:
 
 ```text
-PING: PONG
-GET: OK
-EXISTS: true
-AFTER DELETE: null
-REDIS TEST: OK
+┌─────────────────────┐
+│ Cliente / Consumidor│
+└──────────┬──────────┘
+           │
+           │ Pix
+           ▼
+┌─────────────────────┐
+│       ViaPay        │
+│ Payment Platform    │
+└──────────┬──────────┘
+           │
+     ┌─────┴─────┐
+     │           │
+     ▼           ▼
+   Router       FX
+     │           │
+     └─────┬─────┘
+           │
+           ▼
+      Settlement
+           │
+           ▼
+      USDC / Asset
+           │
+           ▼
+        Solana
+           │
+           ▼
+┌─────────────────────┐
+│ Carteira do Lojista │
+└─────────────────────┘
+````
 
-A API também foi validada:
+A plataforma tem como objetivo oferecer uma camada tecnológica capaz de abstrair a complexidade operacional existente entre:
 
-GET /health
-HTTP/1.1 200 OK
-1. Visão Geral
+* aplicações;
+* comerciantes;
+* sistemas de pagamento;
+* bancos;
+* instituições financeiras;
+* provedores de liquidez;
+* provedores FX;
+* sistemas de settlement;
+* infraestrutura blockchain;
+* APIs;
+* webhooks;
+* sistemas de compliance;
+* sistemas de reconciliação.
 
-O ViaPay tem como objetivo fornecer uma infraestrutura de pagamentos modular, extensível e preparada para integração com diferentes provedores financeiros.
+O ViaPay não deve ser entendido apenas como um checkout.
 
-A arquitetura foi projetada para permitir que regras de negócio permaneçam independentes de:
+Seu objetivo arquitetural é funcionar como uma **camada de payment infrastructure e settlement orchestration**.
 
-banco de dados;
-Redis;
-APIs externas;
-provedores PIX;
-blockchain;
-infraestrutura HTTP;
-mecanismos de cache;
-serviços externos.
+---
 
-A aplicação segue o princípio:
+# 2. Propósito
 
-Domain
-   ↓
-Application
-   ↓
-Infrastructure
-   ↓
-API
+O propósito do ViaPay é criar uma infraestrutura tecnológica moderna para processamento financeiro, permitindo que instituições e empresas integrem pagamentos através de APIs e operem seus fluxos através de interfaces especializadas.
 
-As dependências devem apontar para abstrações e contratos, evitando acoplamento direto entre regras de negócio e infraestrutura.
+A plataforma foi concebida para separar claramente:
 
-2. Objetivos Arquiteturais
-
-Os principais objetivos do projeto são:
-
-Alta coesão;
-Baixo acoplamento;
-Separação de responsabilidades;
-Testabilidade;
-Evolução incremental;
-Substituição de provedores;
-Isolamento de infraestrutura;
-Segurança;
-Observabilidade;
-Escalabilidade horizontal;
-Compatibilidade com ambientes distribuídos.
-
-A arquitetura deve permitir substituir componentes sem alterar as regras centrais de negócio.
-
-Exemplo:
-
-PIX Provider
+```text
+APLICAÇÃO
      │
-     ├── Banco A
-     ├── Banco B
-     ├── Banco C
-     └── Mock/Fake
+     ▼
+API / SDK
+     │
+     ▼
+PAYMENT ORCHESTRATION
+     │
+     ├──────────────┐
+     ▼              ▼
+ PAYMENT          ROUTER
+     │              │
+     └──────┬───────┘
+            ▼
+          FX
+            │
+            ▼
+       SETTLEMENT
+            │
+            ▼
+       RECONCILIATION
+            │
+            ▼
+         LEDGER
+```
 
-O domínio não deve conhecer nenhum desses provedores.
+---
 
-3. Stack Tecnológica
-Runtime
-Node.js
-TypeScript
-pnpm
-API
-Fastify
-@fastify/cors
-@fastify/helmet
-@fastify/swagger
-@fastify/swagger-ui
-Persistência
-PostgreSQL
-Cache / Infraestrutura
-Redis
-ioredis
-Blockchain
-Solana Web3.js
-SPL Token
-Testes
-Vitest
-Arquitetura
-Clean Architecture
-DDD
-Ports & Adapters
-Dependency Inversion
-Separation of Concerns
-4. Estrutura do Monorepo
+# 3. Problema que o ViaPay resolve
+
+Sistemas financeiros modernos normalmente precisam integrar múltiplos componentes:
+
+```text
+Merchant
+   │
+   ├── Payment Provider
+   ├── Bank
+   ├── FX Provider
+   ├── Liquidity Provider
+   ├── Compliance
+   ├── Blockchain
+   ├── Wallet
+   ├── Webhooks
+   ├── Reconciliation
+   └── Reporting
+```
+
+Sem uma camada de orquestração, cada aplicação precisa implementar individualmente:
+
+* autenticação;
+* credenciais;
+* idempotência;
+* criação de pagamentos;
+* consulta de status;
+* webhooks;
+* retries;
+* reconciliação;
+* FX;
+* settlement;
+* auditoria;
+* segurança;
+* observabilidade.
+
+O ViaPay procura centralizar essas responsabilidades.
+
+---
+
+# 4. Modelo operacional
+
+## 4.1 Fluxo principal
+
+O fluxo conceitual principal é:
+
+```text
+┌───────────────┐
+│ Cliente       │
+└───────┬───────┘
+        │
+        │ QR Code / Pix
+        ▼
+┌───────────────┐
+│ ViaPay        │
+│ Checkout      │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│ Payment Core  │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│ Payment Router│
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│ FX / Treasury │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│ Settlement    │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│ Blockchain    │
+│ / Wallet      │
+└───────────────┘
+```
+
+---
+
+# 5. Ecossistema
+
+O ViaPay foi pensado para quatro atores principais.
+
+## Cliente / Consumidor
+
+Responsável por iniciar o pagamento.
+
+```text
+QR Code
+   ↓
+Pix
+   ↓
+Confirmação
+```
+
+## Comerciante / Lojista
+
+Responsável por receber pagamentos e administrar sua operação.
+
+```text
+Cadastro
+   ↓
+Empresa
+   ↓
+Carteira
+   ↓
+Configuração
+   ↓
+Dashboard
+   ↓
+Pagamentos
+   ↓
+Liquidações
+```
+
+## Desenvolvedor
+
+Responsável por integrar o ViaPay à aplicação.
+
+```text
+Cadastro
+   ↓
+API Keys
+   ↓
+Sandbox
+   ↓
+Documentação
+   ↓
+Integração
+   ↓
+Payment API
+   ↓
+Webhooks
+   ↓
+Production
+```
+
+## Instituição / Operador
+
+Responsável pela infraestrutura operacional.
+
+```text
+Customers
+Payments
+Ledger
+FX
+Liquidity
+Settlement
+Reconciliation
+Risk
+Compliance
+Audit
+Users
+Roles
+Approvals
+```
+
+---
+
+# 6. Arquitetura
+
+A arquitetura segue uma abordagem modular, com separação entre domínio, aplicação, infraestrutura e interfaces.
+
+```text
+                         ┌─────────────────────┐
+                         │      Clients        │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │       API / SDK     │
+                         └──────────┬──────────┘
+                                    │
+                         ┌──────────▼──────────┐
+                         │ Payment Gateway     │
+                         │ / Orchestrator      │
+                         └──────────┬──────────┘
+                                    │
+          ┌─────────────────────────┼─────────────────────────┐
+          │                         │                         │
+          ▼                         ▼                         ▼
+     Payments                    Router                      FX
+          │                         │                         │
+          └─────────────────────────┼─────────────────────────┘
+                                    │
+                                    ▼
+                              Settlement
+                                    │
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+                 Ledger      Reconciliation     Treasury
+                    │
+                    ▼
+                Audit Log
+```
+
+---
+
+# 7. Monorepo
+
+O projeto utiliza uma estrutura de monorepo.
+
+```text
 viapay/
 │
 ├── apps/
-│   │
-│   └── api/
-│       ├── src/
-│       │   ├── app.ts
-│       │   ├── server.ts
-│       │   │
-│       │   ├── composition/
-│       │   │   └── container.ts
-│       │   │
-│       │   ├── controllers/
-│       │   │   └── payment-controller.ts
-│       │   │
-│       │   ├── plugins/
-│       │   │   └── redis.ts
-│       │   │
-│       │   ├── routes/
-│       │   │   └── payment-routes.ts
-│       │   │
-│       │   ├── openapi.ts
-│       │   │
-│       │   └── __tests__/
-│       │       └── payments.test.ts
-│       │
-│       ├── package.json
-│       └── tsconfig.json
+│   ├── api/
+│   ├── bank-core/
+│   ├── bank-core-api/
+│   ├── bank-gateway/
+│   ├── demo-store/
+│   ├── web/
+│   └── worker/
 │
 ├── packages/
-│   │
 │   ├── application/
-│   │   ├── src/
-│   │   │   ├── payment/
-│   │   │   │   ├── ports/
-│   │   │   │   ├── use-cases/
-│   │   │   │   └── __tests__/
-│   │   │   │
-│   │   │   └── ports/
-│   │   │       └── cache.ts
-│   │   │
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── domain/
-│   │   ├── src/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── infrastructure/
-│   │   ├── src/
-│   │   │   ├── payment/
-│   │   │   │   └── in-memory-payment-repository.ts
-│   │   │   │
-│   │   │   ├── pix/
-│   │   │   │   └── fake-pix-provider.ts
-│   │   │   │
-│   │   │   ├── redis/
-│   │   │   │   ├── redis-cache.ts
-│   │   │   │   ├── redis-client.ts
-│   │   │   │   ├── redis-health.ts
-│   │   │   │   └── index.ts
-│   │   │   │
-│   │   │   └── __tests__/
-│   │   │       └── redis.test.ts
-│   │   │
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
 │   ├── contracts/
-│   │   ├── src/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
+│   ├── domain/
+│   ├── infrastructure/
 │   ├── sdk/
-│   │   ├── src/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
 │   └── shared/
-│       ├── src/
-│       ├── package.json
-│       └── tsconfig.json
 │
-├── .env.example
+├── sandbox/
+│
+├── docs/
+│
+├── scripts/
+│
+├── prisma/
+│
 ├── package.json
-├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
+├── turbo.json
 └── README.md
-5. Arquitetura
+```
 
-A aplicação é organizada em camadas.
+---
 
-Domain
+# 8. Aplicações
 
-Responsável pelas regras fundamentais do negócio.
+## apps/web
 
-O Domain não deve depender de:
+Frontend institucional e experiência pública do ViaPay.
 
-Fastify;
-Redis;
-PostgreSQL;
-ioredis;
-HTTP;
-SDKs externos.
+Responsabilidades:
+
+* Home;
+* apresentação;
+* preços;
+* empresa;
+* contato;
+* cadastro;
+* login;
+* documentação pública;
+* experiência do comerciante;
+* checkout;
+* interfaces de integração.
+
+Tecnologias:
+
+```text
+Next.js
+React
+TypeScript
+Tailwind CSS
+Lucide
+Recharts
+Zod
+React Hook Form
+```
+
+---
+
+## apps/bank-core
+
+Interface operacional do Core Banking / Payment Operations.
+
+Responsabilidades:
+
+```text
+Dashboard
+Customers
+Accounts
+Payments
+Transfers
+Ledger
+Accounting
+Approvals
+Audit
+Compliance
+Fraud
+Risk
+FX
+Liquidity
+Settlement
+Reconciliation
+Merchants
+Users
+Roles
+Permissions
+Integrations
+Developer
+Settings
+```
+
+O `bank-core` representa a camada operacional interna.
+
+---
+
+## apps/bank-core-api
+
+API especializada para operações do Core.
+
+Responsabilidades:
+
+* autenticação;
+* autorização;
+* clientes;
+* contas;
+* pagamentos;
+* ledger;
+* aprovações;
+* settlement;
+* reconciliação;
+* auditoria.
+
+---
+
+## apps/bank-gateway
+
+Gateway responsável pela exposição e roteamento de integrações financeiras.
+
+Conceitualmente:
+
+```text
+External Provider
+       │
+       ▼
+Bank Gateway
+       │
+       ▼
+Payment Router
+       │
+       ▼
+Internal Core
+```
+
+---
+
+## apps/api
+
+API principal da plataforma.
+
+Responsável por expor contratos de negócio para:
+
+* merchants;
+* developers;
+* applications;
+* payments;
+* webhooks;
+* API keys;
+* sandbox;
+* integrações.
+
+---
+
+## apps/worker
+
+Processamento assíncrono.
+
+Exemplos:
+
+```text
+Payment Processing
+Webhook Delivery
+Settlement
+Reconciliation
+Retry
+Notifications
+FX Processing
+Blockchain Processing
+```
+
+---
+
+## apps/demo-store
+
+Aplicação demonstrativa para simular um comerciante integrado ao ViaPay.
+
+Fluxo:
+
+```text
+Demo Store
+    │
+    ▼
+ViaPay API
+    │
+    ▼
+Payment
+    │
+    ▼
+Webhook
+    │
+    ▼
+Settlement
+```
+
+---
+
+# 9. Packages
+
+## @viapay/domain
+
+Contém regras de domínio.
+
+Exemplos:
+
+```text
+Payment
+Ledger
+Account
+Customer
+Merchant
+Router
+FX
+Settlement
+Reconciliation
+```
+
+O domínio não deve depender de frameworks de infraestrutura.
+
+---
+
+# 10. Payment Domain
+
+Um pagamento deve possuir identidade própria e ciclo de vida controlado.
 
 Exemplo conceitual:
 
-Domain
- ├── Entities
- ├── Value Objects
- ├── Domain Services
- ├── Domain Errors
- └── Business Rules
-Application
+```text
+CREATED
+   │
+   ▼
+PENDING
+   │
+   ▼
+PROCESSING
+   │
+   ├───────────────┐
+   ▼               ▼
+CONFIRMED       FAILED
+   │
+   ▼
+SETTLING
+   │
+   ▼
+SETTLED
+```
 
-Contém os casos de uso da aplicação.
+Estados possíveis:
 
-Exemplos atuais:
+```text
+created
+pending
+processing
+confirmed
+failed
+cancelled
+expired
+settling
+settled
+```
 
-CreatePayment
-GetPayment
-HandlePixPayment
+---
 
-Os casos de uso coordenam as operações necessárias para executar uma determinada ação do sistema.
+# 11. Idempotência
 
-Exemplo:
+Operações financeiras não devem depender exclusivamente de retries cegos.
 
-Controller
-    ↓
-Use Case
-    ↓
-Port
-    ↓
-Infrastructure Adapter
-Infrastructure
-
-Implementa os contratos definidos pelas camadas superiores.
-
-Atualmente inclui:
-
-Redis
-Payment Repository
-PIX Provider
-Solana
-
-Exemplo:
-
-Application
-     │
-     │ PaymentRepository
-     ▼
-Infrastructure
-     │
-     └── InMemoryPaymentRepository
-
-O repositório em memória pode posteriormente ser substituído por PostgreSQL sem alterar o caso de uso.
-
-API
-
-A API é responsável por:
-
-HTTP;
-rotas;
-controllers;
-plugins;
-autenticação futura;
-validação de requests;
-serialização;
-documentação OpenAPI;
-integração das dependências.
-
-A API não deve conter regras complexas de negócio.
-
-6. Dependency Rule
-
-As dependências devem respeitar a direção arquitetural:
-
-              ┌─────────────┐
-              │   DOMAIN    │
-              └──────┬──────┘
-                     │
-                     ▼
-              ┌─────────────┐
-              │ APPLICATION │
-              └──────┬──────┘
-                     │
-             ┌───────┴────────┐
-             ▼                ▼
-       Infrastructure        API
-
-A infraestrutura pode implementar contratos da aplicação.
-
-O domínio não deve depender da infraestrutura.
-
-7. Redis
-
-O Redis é utilizado como infraestrutura de cache e pode futuramente suportar:
-
-cache;
-idempotência;
-locks distribuídos;
-sessões;
-rate limiting;
-filas auxiliares;
-controle temporário de estados.
-
-A integração está encapsulada em:
-
-packages/infrastructure/src/redis/
-
-Principais componentes:
-
-RedisClient
-RedisCache
-checkRedisHealth
-createRedisClient
-getRedis
-8. Redis Client
-
-O RedisClient encapsula o acesso ao Redis.
-
-Operações disponíveis:
-
-connect()
-get()
-set()
-del()
-delete()
-exists()
-ping()
-quit()
-disconnect()
-close()
+A API deverá trabalhar com chaves de idempotência.
 
 Exemplo:
 
-const redis = createRedisClient({
-  keyPrefix: "viapay:"
-});
+```http
+POST /v1/payments
+Idempotency-Key: 8c9e7d...
+```
 
-await redis.set(
-  "payment:123",
-  JSON.stringify(payment),
-  60
-);
+A mesma operação enviada novamente deve retornar o resultado da operação original em vez de criar uma segunda transação.
 
-const value = await redis.get(
-  "payment:123"
-);
+---
 
-await redis.quit();
-9. Redis Cache
-
-A abstração RedisCache implementa o contrato de cache definido pela aplicação.
-
-Operações:
-
-get()
-set()
-delete()
-exists()
-
-O cache suporta valores serializados em JSON.
-
-Exemplo:
-
-await cache.set(
-  "payment:123",
-  {
-    id: "123",
-    status: "pending"
-  },
-  60
-);
-
-const payment =
-  await cache.get("payment:123");
-10. Redis Health Check
-
-A infraestrutura possui verificação de disponibilidade do Redis.
-
-O resultado possui o formato:
-
-{
-  status: "up",
-  latencyMs: 2
-}
-
-Ou:
-
-{
-  status: "down",
-  latencyMs: 10
-}
-
-Isso permite integrar o Redis posteriormente ao sistema de health checks e observabilidade.
-
-11. PostgreSQL
-
-O PostgreSQL é o banco de dados relacional previsto para persistência principal.
-
-Configuração:
-
-DATABASE_URL=postgresql://viapay:viapay@localhost:5432/viapay
-
-Verificação local:
-
-pg_isready
-
-Resultado esperado:
-
-/var/run/postgresql:5432 - accepting connections
-
-A persistência definitiva deve substituir progressivamente os repositórios em memória.
-
-12. API
-
-A API utiliza Fastify.
-
-Inicialização:
-
-apps/api/src/server.ts
-
-Construção da aplicação:
-
-apps/api/src/app.ts
-
-A aplicação atualmente utiliza:
-
-Fastify;
-CORS;
-Helmet;
-Swagger;
-Swagger UI;
-Redis Plugin;
-Payment Routes.
-13. Health Check
-
-Endpoint:
-
-GET /health
-
-Exemplo:
-
-curl -i http://127.0.0.1:3001/health
-
-Resposta esperada:
-
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-Payload:
-
-{
-  "status": "ok",
-  "service": "viapay-api"
-}
-14. API Documentation
-
-A documentação OpenAPI é disponibilizada através do Swagger UI.
-
-Endpoint:
-
-/docs
-
-Localmente:
-
-http://localhost:3001/docs
-
-A especificação é registrada em:
-
-apps/api/src/openapi.ts
-15. Payments
-
-O módulo de pagamentos está organizado em:
-
-packages/application/src/payment/
-
-Incluindo casos de uso:
-
-CreatePayment
-GetPayment
-HandlePixPayment
-
-Ports:
-
-PaymentRepository
-PixProvider
-ExchangeProvider
-SolanaProvider
-
-Essa abordagem permite substituir implementações sem alterar os casos de uso.
-
-16. Payment Repository
-
-O projeto atualmente possui uma implementação em memória:
-
-InMemoryPaymentRepository
-
-Localização:
-
-packages/infrastructure/src/payment/
-
-Ela é adequada para:
-
-desenvolvimento;
-testes;
-prototipação;
-testes de integração controlados.
-
-Para produção, deverá ser implementado um repositório persistente baseado em PostgreSQL.
-
-17. PIX
-
-A arquitetura possui uma abstração:
-
-PixProvider
-
-e uma implementação fake:
-
-FakePixProvider
-
-Isso permite desenvolver os casos de uso sem depender imediatamente de um provedor financeiro externo.
-
-Posteriormente:
-
-PixProvider
-      │
-      ├── FakePixProvider
-      ├── Provider A
-      ├── Provider B
-      └── Provider C
-18. Solana
-
-A infraestrutura inclui dependências para integração com Solana:
-
-@solana/web3.js
-@solana/spl-token
-
-Configuração prevista:
-
-SOLANA_RPC=https://api.devnet.solana.com
-SOLANA_NETWORK=devnet
-SOLANA_TREASURY_PUBLIC_KEY=
-SOLANA_TREASURY_SECRET=
-USDC_MINT_DEVNET=
-
-O ambiente padrão de desenvolvimento utiliza:
-
-devnet
-
-Chaves privadas nunca devem ser versionadas.
-
-19. Environment Variables
-
-Arquivo de referência:
-
-.env.example
-
-Configuração atual:
-
-NODE_ENV=development
-
-DATABASE_URL=postgresql://viapay:viapay@localhost:5432/viapay
-
-API_PORT=3001
-
-PIX_API_KEY=
-PIX_API_URL=
-
-SOLANA_RPC=https://api.devnet.solana.com
-SOLANA_NETWORK=devnet
-SOLANA_TREASURY_PUBLIC_KEY=
-SOLANA_TREASURY_SECRET=
-USDC_MINT_DEVNET=
-
-EXCHANGE_RATE_PROVIDER=
-EXCHANGE_RATE_API_KEY=
-
-WEBHOOK_BASE_URL=
-
-NEXT_PUBLIC_API_URL=http://localhost:3001
-
-Em produção, utilizar gerenciamento seguro de secrets.
-
-Nunca versionar:
-
-.env
-.env.local
-.env.production
-private keys
-API keys
-tokens
-credentials
-20. Instalação
-
-Requisitos:
-
-Node.js
-pnpm
-PostgreSQL
-Redis
-
-Verificar Node:
-
-node --version
-
-Verificar pnpm:
-
-pnpm --version
-
-Instalar dependências:
-
-pnpm install
-21. Infraestrutura Local
-PostgreSQL
-
-Verificar:
-
-pg_isready
-
-Esperado:
-
-accepting connections
-Redis
-
-Verificar:
-
-redis-cli ping
-
-Esperado:
-
-PONG
-
-Verificar versão:
-
-redis-cli INFO server | grep -E 'redis_version|redis_mode'
-22. Build
-
-Build da aplicação:
-
-pnpm --filter @viapay/application build
-
-Build da infraestrutura:
-
-pnpm --filter @viapay/infrastructure build
-
-Build da API:
-
-pnpm --filter api build
-23. Typecheck
-
-Application:
-
-pnpm --filter @viapay/application typecheck
-
-Infrastructure:
-
-pnpm --filter @viapay/infrastructure typecheck
-
-API:
-
-pnpm --filter api typecheck
-
-O projeto deve ser considerado pronto para commit somente quando o typecheck estiver limpo.
-
-24. Testes
-
-Executar testes da infraestrutura:
-
-pnpm --filter @viapay/infrastructure test
-
-Os testes utilizam:
-
-Vitest
-
-Exemplo de teste de integração Redis:
-
-PING
-GET
-SET
-EXISTS
-DELETE
-QUIT
-25. Executando a API
-
-Build:
-
-pnpm --filter api build
-
-Inicialização:
-
-pnpm --filter api start
-
-A API utiliza a porta:
-
-3001
-
-Endpoint:
-
-http://localhost:3001
-
-Health:
-
-http://localhost:3001/health
-
-Swagger:
-
-http://localhost:3001/docs
-26. Verificação da Porta
-
-Para verificar se a API está executando:
-
-ss -lntp | grep ':3001'
-
-Exemplo:
-
-LISTEN 0 511 0.0.0.0:3001
-
-Se aparecer:
-
-EADDRINUSE
-
-significa que a porta 3001 já está sendo utilizada por outro processo.
-
-Verificar:
-
-ss -lntp | grep ':3001'
-
-Não iniciar uma segunda instância na mesma porta.
-
-27. Teste Manual da API
-
-Health:
-
-curl -i \
-  http://127.0.0.1:3001/health
-
-Teste de pagamento inexistente:
-
-curl -i \
-  http://127.0.0.1:3001/payments/payment_123
-
-Um pagamento inexistente deve retornar um erro de recurso não encontrado conforme o contrato da API.
-
-28. Teste Manual do Redis
-
-Executar:
-
-node --input-type=module <<'EOF'
-import {
-  createRedisClient
-} from "./packages/infrastructure/dist/index.js";
-
-const redis = createRedisClient({
-  keyPrefix: "viapay:test:"
-});
-
-console.log(
-  "PING:",
-  await redis.ping()
-);
-
-await redis.set(
-  "connection-test",
-  "OK",
-  60
-);
-
-console.log(
-  "GET:",
-  await redis.get("connection-test")
-);
-
-console.log(
-  "EXISTS:",
-  await redis.exists("connection-test")
-);
-
-await redis.delete(
-  "connection-test"
-);
-
-console.log(
-  "AFTER DELETE:",
-  await redis.get("connection-test")
-);
-
-await redis.quit();
-
-console.log(
-  "REDIS TEST: OK"
-);
-EOF
-
-Resultado esperado:
-
-PING: PONG
-GET: OK
-EXISTS: true
-AFTER DELETE: null
-REDIS TEST: OK
-29. Desenvolvimento
-
-Fluxo recomendado:
-
-1. Alterar código
-2. Executar typecheck
-3. Executar testes
-4. Executar build
-5. Executar testes de integração
-6. Revisar git diff
-7. Commit
-8. Push
-
-Comandos:
-
-pnpm --filter @viapay/application typecheck
-pnpm --filter @viapay/infrastructure typecheck
-pnpm --filter api typecheck
-
-Depois:
-
-pnpm --filter @viapay/infrastructure test
-
-E:
-
-pnpm --filter @viapay/application build
-pnpm --filter @viapay/infrastructure build
-pnpm --filter api build
-30. Git Workflow
-
-Verificar alterações:
-
-git status
-
-Adicionar arquivos:
-
-git add -A
-
-Criar commit:
-
-git commit -m "feat: implement payment infrastructure"
-
-Enviar:
-
-git push origin main
-
-Verificar histórico:
-
-git log --oneline -10
-31. Segurança
-
-Segurança é requisito arquitetural do ViaPay.
-
-Nunca armazenar no Git:
-
-senhas;
-API keys;
-tokens;
-secrets;
-chaves privadas;
-credenciais bancárias;
-private keys de blockchain.
-
-A chave:
-
-SOLANA_TREASURY_SECRET=
-
-deve permanecer exclusivamente no ambiente seguro de execução.
-
-32. Idempotência
-
-Operações financeiras devem ser projetadas para suportar idempotência.
-
-Operações como:
-
-CreatePayment
-PIX charge creation
-Webhook processing
+# 12. Ledger
+
+O ledger é um dos componentes críticos da arquitetura.
+
+O modelo recomendado é baseado em partidas dobradas.
+
+```text
+                 TRANSACTION
+                      │
+          ┌───────────┴───────────┐
+          ▼                       ▼
+     DEBIT ENTRY             CREDIT ENTRY
+          │                       │
+          ▼                       ▼
+     ACCOUNT A                ACCOUNT B
+```
+
+Regra fundamental:
+
+```text
+Σ Débitos = Σ Créditos
+```
+
+O ledger deve ser:
+
+* auditável;
+* imutável;
+* consistente;
+* reconciliável;
+* identificável;
+* rastreável.
+
+---
+
+# 13. Accounts
+
+Contas representam entidades financeiras utilizadas pelo sistema.
+
+Exemplos:
+
+```text
+Merchant Account
+Customer Account
+Settlement Account
+Treasury Account
+Fee Account
+Clearing Account
+Suspense Account
+```
+
+---
+
+# 14. FX
+
+A camada FX permite abstrair conversão de moedas e ativos.
+
+Fluxo:
+
+```text
+BRL
+ │
+ ▼
+FX Quote
+ │
+ ├── rate
+ ├── spread
+ ├── fee
+ ├── expiration
+ │
+ ▼
+Converted Amount
+```
+
+Um quote deve possuir:
+
+```text
+quote_id
+base_currency
+quote_currency
+rate
+spread
+fee
+expires_at
+created_at
+```
+
+---
+
+# 15. Settlement
+
+Settlement representa a liquidação financeira.
+
+Fluxo conceitual:
+
+```text
+Payment
+   │
+   ▼
+Clearing
+   │
+   ▼
+FX
+   │
+   ▼
 Settlement
-
-não devem gerar efeitos financeiros duplicados quando a mesma requisição for processada mais de uma vez.
-
-Redis poderá ser utilizado futuramente como mecanismo auxiliar de idempotência distribuída.
-
-33. Webhooks
-
-A arquitetura prevê integração com webhooks de provedores externos.
-
-O fluxo recomendado é:
-
-Provider
    │
    ▼
-Webhook API
+Destination Wallet
+```
+
+O sistema deve separar claramente:
+
+```text
+Payment
+Settlement
+Reconciliation
+Ledger
+```
+
+Esses conceitos não devem ser tratados como uma única operação.
+
+---
+
+# 16. Reconciliation
+
+Reconciliação compara registros de diferentes fontes.
+
+```text
+             ┌──────────────┐
+             │ ViaPay Ledger│
+             └──────┬───────┘
+                    │
+                    │
+                    ▼
+             ┌──────────────┐
+             │ Reconciliation│
+             └──────┬───────┘
+                    │
+                    ▼
+             ┌──────────────┐
+             │ Provider Data│
+             └──────────────┘
+```
+
+Resultados possíveis:
+
+```text
+MATCHED
+MISMATCH
+MISSING_INTERNAL
+MISSING_EXTERNAL
+PENDING
+MANUAL_REVIEW
+```
+
+---
+
+# 17. Sandbox
+
+O ViaPay possui uma área dedicada para desenvolvedores testarem integrações antes de acessar produção.
+
+Fluxo:
+
+```text
+Developer
    │
    ▼
-Validation
+Create Account
    │
    ▼
-Idempotency
+Sandbox
+   │
+   ├── API Keys
+   ├── Test Payments
+   ├── Webhooks
+   ├── Logs
+   ├── Applications
+   └── Documentation
    │
    ▼
+Certification
+   │
+   ▼
+Production
+```
+
+A sandbox não deve movimentar recursos financeiros reais.
+
+---
+
+# 18. Developer Platform
+
+O desenvolvedor deve possuir acesso a:
+
+```text
+Applications
+API Keys
+Sandbox
+Documentation
+Webhooks
+Logs
+Certification
+Production
+```
+
+Arquitetura:
+
+```text
+Developer
+    │
+    ▼
 Application
+    │
+    ├── Client ID
+    ├── Client Secret
+    ├── API Keys
+    └── Webhook Secret
+```
+
+---
+
+# 19. Webhooks
+
+Webhooks permitem comunicar eventos para sistemas externos.
+
+Exemplo:
+
+```json
+{
+  "event": "payment.confirmed",
+  "id": "evt_123",
+  "payment_id": "pay_123",
+  "created_at": "2026-01-01T12:00:00Z"
+}
+```
+
+Eventos:
+
+```text
+payment.created
+payment.pending
+payment.confirmed
+payment.failed
+payment.cancelled
+
+settlement.created
+settlement.processing
+settlement.completed
+settlement.failed
+
+refund.created
+refund.completed
+```
+
+A entrega deve possuir:
+
+* retry;
+* backoff;
+* assinatura;
+* timestamp;
+* idempotência;
+* logs;
+* dead-letter handling.
+
+---
+
+# 20. API
+
+A API deve seguir princípios REST e contratos versionados.
+
+Base conceitual:
+
+```text
+/v1
+```
+
+Exemplos:
+
+```http
+POST /v1/payments
+GET  /v1/payments/{id}
+
+POST /v1/refunds
+GET  /v1/refunds/{id}
+
+GET  /v1/settlements
+GET  /v1/settlements/{id}
+
+GET  /v1/accounts/{id}
+
+POST /v1/webhooks
+GET  /v1/events
+```
+
+---
+
+# 21. Segurança
+
+A plataforma foi projetada considerando:
+
+```text
+Authentication
+Authorization
+RBAC
+ABAC
+MFA
+API Keys
+Secrets
+Audit Logs
+Idempotency
+Rate Limiting
+Encryption
+Webhook Signing
+Least Privilege
+```
+
+---
+
+# 22. RBAC / ABAC
+
+A autorização deve considerar:
+
+```text
+User
+Role
+Permission
+Resource
+Action
+Context
+```
+
+Exemplo:
+
+```text
+Gerente
+   │
+   ├── visualizar pagamentos
+   ├── aprovar settlement
+   ├── visualizar ledger
+   └── acessar auditoria
+```
+
+Enquanto:
+
+```text
+Operador
+   │
+   ├── visualizar pagamentos
+   ├── criar operação
+   └── sem autorização para settlement crítico
+```
+
+---
+
+# 23. Alçadas
+
+Operações sensíveis devem poder exigir aprovação.
+
+Exemplo:
+
+```text
+Operação
    │
    ▼
-Domain
+Limite
+   │
+   ├── baixo → automático
+   │
+   ├── médio → operador
+   │
+   └── alto → gerente
+```
+
+Fluxo:
+
+```text
+REQUESTED
    │
    ▼
-Persistence
+PENDING_APPROVAL
+   │
+   ├───────────────┐
+   ▼               ▼
+APPROVED        REJECTED
+   │
+   ▼
+EXECUTED
+```
 
-Webhooks devem ser tratados como operações potencialmente duplicadas.
+---
 
-34. Observabilidade
+# 24. Auditoria
 
-A arquitetura deve evoluir para observabilidade completa.
+Operações críticas devem produzir eventos de auditoria.
 
-Componentes planejados:
+Exemplo:
 
+```text
+WHO
+WHAT
+WHEN
+WHERE
+RESOURCE
+ACTION
+RESULT
+CORRELATION_ID
+IP
+USER_AGENT
+```
+
+Exemplo:
+
+```text
+User: usr_123
+Action: APPROVE_SETTLEMENT
+Resource: stl_123
+Time: 2026-10-03T12:00:00Z
+Result: APPROVED
+```
+
+---
+
+# 25. Compliance
+
+O sistema possui espaço arquitetural para módulos de compliance.
+
+Exemplos:
+
+```text
+KYC
+KYB
+AML
+Transaction Monitoring
+Risk
+Fraud
+Sanctions Screening
+Audit
+Case Management
+```
+
+A implementação regulatória efetiva depende do modelo operacional, jurisdição, licenças, parceiros e requisitos legais aplicáveis.
+
+---
+
+# 26. Blockchain
+
+O ViaPay possui uma camada arquitetural para integração blockchain.
+
+Fluxo conceitual:
+
+```text
+BRL Payment
+     │
+     ▼
+Payment Confirmation
+     │
+     ▼
+Conversion
+     │
+     ▼
+USDC
+     │
+     ▼
+Solana
+     │
+     ▼
+Merchant Wallet
+```
+
+A infraestrutura blockchain deve ser desacoplada do domínio de pagamentos.
+
+Isso permite trocar:
+
+```text
+Blockchain Provider
+RPC Provider
+Custody Provider
+Wallet Infrastructure
+Liquidity Provider
+```
+
+sem alterar o domínio principal.
+
+---
+
+# 27. Observabilidade
+
+A plataforma deve trabalhar com:
+
+```text
 Logs
 Metrics
 Tracing
+Correlation IDs
 Health Checks
-Audit Logs
+Error Tracking
+Audit Events
+```
 
-A implementação futura deve permitir acompanhar:
+Fluxo:
 
-request;
-payment;
-PIX;
-webhook;
-provider;
-database;
-Redis;
-blockchain.
-35. Error Handling
+```text
+Request
+   │
+   ├── correlation_id
+   │
+   ▼
+API
+   │
+   ▼
+Application
+   │
+   ▼
+Domain
+   │
+   ▼
+Infrastructure
+   │
+   ▼
+Observability
+```
 
-Erros de infraestrutura não devem vazar diretamente para a camada HTTP.
+---
+
+# 28. Resiliência
+
+Componentes financeiros devem ser projetados para falhas.
+
+Estratégias:
+
+```text
+Retry
+Exponential Backoff
+Circuit Breaker
+Timeout
+Idempotency
+Dead Letter Queue
+Outbox
+Inbox
+Reconciliation
+Compensating Operations
+```
+
+---
+
+# 29. Event-driven architecture
+
+Operações assíncronas podem utilizar eventos.
 
 Exemplo:
 
-Redis Error
-     ↓
-Infrastructure Error
-     ↓
-Application Result
-     ↓
-API Error
-     ↓
-HTTP Response
+```text
+PaymentConfirmed
+       │
+       ├──────────────► Notification
+       │
+       ├──────────────► Ledger
+       │
+       ├──────────────► Settlement
+       │
+       └──────────────► Analytics
+```
 
-A API deve fornecer respostas previsíveis e estruturadas.
+---
 
-36. Result Pattern
+# 30. Banco de dados
 
-O projeto possui infraestrutura compartilhada para resultados:
+O PostgreSQL é utilizado como principal banco relacional da arquitetura.
 
-packages/shared/src/result.ts
+Entidades esperadas:
 
-A utilização do Result Pattern permite representar operações com sucesso ou falha sem depender exclusivamente de exceções para fluxo de negócio.
+```text
+users
+roles
+permissions
 
-Modelo conceitual:
+customers
+merchants
+accounts
 
-Result<T, E>
-37. API Contracts
+payments
+payment_attempts
+payment_events
 
-Os contratos públicos da plataforma devem permanecer separados da implementação.
+ledger_accounts
+ledger_transactions
+ledger_entries
 
-Package:
+fx_quotes
+fx_transactions
 
-@viapay/contracts
+settlements
+settlement_items
 
-Objetivos:
+reconciliation_runs
+reconciliation_items
 
-contratos HTTP;
-DTOs;
-schemas;
-tipos compartilhados;
-compatibilidade entre clientes e API.
-38. SDK
+api_keys
+applications
+webhooks
+webhook_deliveries
 
-O projeto possui o package:
+audit_logs
+risk_cases
+compliance_cases
+```
 
-@viapay/sdk
+---
 
-Objetivo:
+# 31. Redis
 
-fornecer uma interface tipada para consumidores da API.
+Redis pode ser utilizado para:
 
-Arquiteturalmente:
+```text
+Caching
+Rate Limiting
+Distributed Locks
+Session State
+Short-lived Data
+Idempotency
+Queues auxiliares
+```
 
+---
+
+# 32. RabbitMQ
+
+RabbitMQ pode ser utilizado para processamento assíncrono:
+
+```text
+Payment Events
+Settlement Jobs
+Webhook Delivery
+Reconciliation
+Notifications
+Retry Queues
+```
+
+---
+
+# 33. Docker
+
+O ambiente pode ser executado através de containers.
+
+Arquitetura local:
+
+```text
+┌──────────────────────────────────────┐
+│              Docker                  │
+│                                      │
+│  ┌────────┐ ┌────────┐ ┌─────────┐ │
+│  │  Web   │ │  API   │ │ Worker  │ │
+│  └────────┘ └────────┘ └─────────┘ │
+│                                      │
+│  ┌──────────┐ ┌──────────┐           │
+│  │PostgreSQL│ │  Redis   │           │
+│  └──────────┘ └──────────┘           │
+│                                      │
+│  ┌──────────┐                         │
+│  │ RabbitMQ │                         │
+│  └──────────┘                         │
+└──────────────────────────────────────┘
+```
+
+---
+
+# 34. Frontend
+
+O frontend utiliza:
+
+```text
+Next.js
+React
+TypeScript
+Tailwind CSS
+Lucide
+Recharts
+React Hook Form
+Zod
+```
+
+Princípios:
+
+* componentes reutilizáveis;
+* acessibilidade;
+* responsividade;
+* tipagem forte;
+* separação de responsabilidades;
+* design system;
+* estados de loading;
+* estados de erro;
+* estados vazios;
+* feedback operacional.
+
+---
+
+# 35. Design System
+
+A identidade visual segue:
+
+```text
+Primary Blue
+#0B5FFF
+
+Blue
+#2563EB
+
+Light Blue
+#60A5FA
+
+Cyan
+#06B6D4
+
+White
+#FFFFFF
+```
+
+Diretriz visual:
+
+```text
+White-first
+Blue institutional
+Cyan accents
+Large whitespace
+Clear hierarchy
+Enterprise UI
+```
+
+O sistema deve evitar interfaces excessivamente carregadas.
+
+---
+
+# 36. Principais interfaces
+
+## Public Website
+
+```text
+Home
+Como funciona
+Empresa
+Preços
+Contato
+Documentação
+Login
+Cadastro
+```
+
+## Merchant
+
+```text
+Dashboard
+Pagamentos
+Transações
+Liquidações
+Carteira
+Configurações
+Clientes
+API
+Webhooks
+```
+
+## Developer
+
+```text
+Applications
+API Keys
+Sandbox
+Documentation
+Logs
+Webhooks
+Certification
+Production
+```
+
+## Bank / Operations
+
+```text
+Dashboard
+Customers
+Accounts
+Payments
+Transfers
+Ledger
+Accounting
+FX
+Liquidity
+Settlement
+Reconciliation
+Risk
+Fraud
+Compliance
+Audit
+Approvals
+Users
+Roles
+Permissions
+Integrations
+Settings
+```
+
+---
+
+# 37. Fluxo do lojista
+
+```text
+┌──────────────┐
+│    Cadastro  │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│    Empresa   │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│    Carteira  │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│ Configuração │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│  Dashboard   │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│  Pagamentos  │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│ Liquidação   │
+└──────────────┘
+```
+
+---
+
+# 38. Fluxo do desenvolvedor
+
+```text
+Cadastro
+   │
+   ▼
 Application
+   │
+   ▼
+API Credentials
+   │
+   ▼
+Sandbox
+   │
+   ▼
+Documentation
+   │
+   ▼
+Integration
+   │
+   ▼
+Webhook
+   │
+   ▼
+Certification
+   │
+   ▼
+Production
+```
+
+---
+
+# 39. Fluxo de pagamento
+
+```text
+Create Payment
       │
       ▼
-     API
+Payment ID
       │
       ▼
-     SDK
+QR Code
       │
       ▼
- Client Applications
-39. Princípios de Código
+Pix Payment
+      │
+      ▼
+Provider Confirmation
+      │
+      ▼
+Payment Confirmed
+      │
+      ▼
+FX
+      │
+      ▼
+USDC
+      │
+      ▼
+Settlement
+      │
+      ▼
+Solana
+      │
+      ▼
+Merchant Wallet
+```
+
+---
+
+# 40. Estados de operação
+
+```text
+                     ┌──────────┐
+                     │ CREATED  │
+                     └────┬─────┘
+                          │
+                          ▼
+                     ┌──────────┐
+                     │ PENDING  │
+                     └────┬─────┘
+                          │
+                          ▼
+                   ┌──────────────┐
+                   │  PROCESSING  │
+                   └──────┬───────┘
+                          │
+               ┌──────────┴──────────┐
+               ▼                     ▼
+        ┌─────────────┐       ┌─────────────┐
+        │  CONFIRMED  │       │    FAILED   │
+        └──────┬──────┘       └─────────────┘
+               │
+               ▼
+        ┌─────────────┐
+        │  SETTLING   │
+        └──────┬──────┘
+               │
+               ▼
+        ┌─────────────┐
+        │   SETTLED   │
+        └─────────────┘
+```
+
+---
+
+# 41. Qualidade de software
 
 O projeto deve seguir:
 
-SOLID;
-Clean Code;
-DRY;
-KISS;
-Dependency Inversion;
-Single Responsibility;
-Separation of Concerns;
-Explicit Dependencies;
-Immutability quando apropriado;
-Fail Fast;
-Secure by Default.
+```text
+Clean Architecture
+DDD
+SOLID
+Clean Code
+API First
+Contract First
+Event Driven Architecture
+Result Pattern
+Dependency Inversion
+Separation of Concerns
+```
 
-Evitar:
+---
 
-lógica de negócio em controllers;
-acesso direto ao banco em controllers;
-dependência direta de infraestrutura no domínio;
-singleton global sem necessidade;
-secrets no código;
-funções excessivamente grandes;
-acoplamento entre módulos.
-40. Test Strategy
+# 42. Testes
 
-A estratégia de testes deve evoluir em camadas.
+Estratégia:
 
+```text
 Unit Tests
-
-Testam:
-
-Domain
-Use Cases
-Value Objects
-Business Rules
-
-Sem dependências externas.
-
 Integration Tests
-
-Testam:
-
-Redis
-PostgreSQL
-Providers
-Repositories
+Contract Tests
 API Tests
+E2E Tests
+Security Tests
+Load Tests
+Reconciliation Tests
+Idempotency Tests
+```
 
-Testam:
+Testes críticos:
 
-HTTP
-Routes
-Validation
-Controllers
-Error Responses
-End-to-End
+```text
+Payment Creation
+Duplicate Payment
+Payment Confirmation
+Ledger Balance
+Settlement
+Reconciliation
+Webhook Retry
+Authorization
+Approval
+API Authentication
+```
 
-Validam fluxos completos:
+---
 
-Client
-  ↓
-API
-  ↓
-Application
-  ↓
-Infrastructure
-  ↓
-Database / Provider
-41. Roadmap Técnico
-Fase 1 — Fundação
- Monorepo
- TypeScript
- Fastify
- Application package
- Infrastructure package
- Domain package
- Contracts package
- SDK package
- Redis
- Redis Cache
- Health Check
- Swagger
- Vitest
-Fase 2 — Payments
- Payment use cases
- Payment repository abstraction
- In-memory repository
- PIX provider abstraction
- Fake PIX provider
-Fase 3 — Persistência
- PostgreSQL repository
- Database migrations
- Transaction boundaries
- Persistence integration tests
- Idempotency persistence
-Fase 4 — PIX
- Provider real
- Webhooks
- Webhook signature validation
- Idempotency
- Retry strategy
- Reconciliation
-Fase 5 — Blockchain
- Solana provider
- USDC transactions
- Transaction confirmation
- Blockchain reconciliation
- Treasury management
-Fase 6 — Segurança
- Authentication
- Authorization
- API keys
- Rate limiting
- Request validation
- Audit logs
- Secret management
-Fase 7 — Observabilidade
- Structured logging
- Metrics
- Distributed tracing
- OpenTelemetry
- Alerts
- Operational dashboards
-Fase 8 — Produção
- Docker
- CI/CD
- Production PostgreSQL
- Managed Redis
- Secret management
- Horizontal scaling
- Disaster recovery
- Backup strategy
- Operational runbooks
-42. Production Readiness
+# 43. CI/CD
 
-Antes de produção financeira, o sistema deverá possuir pelo menos:
+Pipeline esperado:
 
-[ ] Persistent database
-[ ] Database migrations
-[ ] Transaction management
-[ ] Idempotency
-[ ] Authentication
-[ ] Authorization
-[ ] Rate limiting
-[ ] Input validation
-[ ] Secure secrets
-[ ] Audit trail
-[ ] Structured logging
-[ ] Monitoring
-[ ] Alerting
-[ ] Backup
-[ ] Disaster recovery
-[ ] Provider reconciliation
-[ ] Webhook verification
-[ ] Automated tests
-[ ] CI/CD
-[ ] Security review
+```text
+Developer
+    │
+    ▼
+Git Push
+    │
+    ▼
+Lint
+    │
+    ▼
+Typecheck
+    │
+    ▼
+Unit Tests
+    │
+    ▼
+Integration Tests
+    │
+    ▼
+Build
+    │
+    ▼
+Security Scan
+    │
+    ▼
+Deploy
+```
 
-O fato de a API responder 200 OK não significa que o sistema esteja pronto para processar operações financeiras reais.
+---
 
-43. Environment Architecture
+# 44. Git workflow
 
-Desenvolvimento:
+Branches recomendadas:
 
-Developer Machine
-       │
-       ├── Node.js
-       ├── PostgreSQL
-       ├── Redis
-       └── ViaPay API
+```text
+main
+develop
+feature/*
+fix/*
+refactor/*
+hotfix/*
+```
 
-Staging:
+Commits:
 
-CI/CD
-  │
-  ▼
-Staging
-  ├── API
-  ├── PostgreSQL
-  ├── Redis
-  └── External Providers
+```text
+feat:
+fix:
+refactor:
+docs:
+test:
+chore:
+security:
+```
 
-Produção:
+Exemplo:
 
-Load Balancer
-      │
-      ▼
-┌───────────────┐
-│ API Instance  │
-├───────────────┤
-│ API Instance  │
-├───────────────┤
-│ API Instance  │
-└───────────────┘
-       │
-       ├──────── PostgreSQL
-       │
-       ├──────── Redis
-       │
-       └──────── External Providers
-44. Monorepo Dependency Model
+```text
+feat(payments): add idempotent payment creation
+```
 
-Os packages devem possuir responsabilidades claras.
+---
 
-@viapay/domain
-       ↑
-@viapay/application
-       ↑
-@viapay/infrastructure
-       ↑
-@viapay/api
+# 45. Desenvolvimento local
 
-Packages auxiliares:
+Requisitos:
 
-@viapay/contracts
-@viapay/sdk
-@viapay/shared
+```text
+Node.js
+pnpm
+Git
+Docker
+PostgreSQL
+Redis
+RabbitMQ
+```
 
-A regra principal é evitar dependências circulares.
+Verificar:
 
-45. Definition of Done
+```bash
+node --version
+pnpm --version
+git --version
+docker --version
+```
 
-Uma funcionalidade somente deve ser considerada concluída quando:
+Instalar dependências:
 
-implementação finalizada;
-tipos compilando;
-testes implementados;
-testes passando;
-documentação atualizada;
-tratamento de erros implementado;
-logs adequados;
-segurança considerada;
-contratos atualizados;
-build funcionando;
-revisão de código realizada.
-46. Comandos Rápidos
-
-Instalar:
-
+```bash
 pnpm install
+```
 
-Typecheck completo:
+Executar frontend:
 
-pnpm --filter @viapay/application typecheck
-pnpm --filter @viapay/infrastructure typecheck
-pnpm --filter api typecheck
+```bash
+pnpm --filter web dev
+```
 
-Build:
+Frontend:
 
-pnpm --filter @viapay/application build
-pnpm --filter @viapay/infrastructure build
-pnpm --filter api build
+```text
+http://localhost:3000
+```
+
+---
+
+# 46. Build
+
+Executar:
+
+```bash
+pnpm build
+```
+
+Typecheck:
+
+```bash
+pnpm typecheck
+```
+
+Lint:
+
+```bash
+pnpm lint
+```
 
 Testes:
 
-pnpm --filter @viapay/infrastructure test
+```bash
+pnpm test
+```
 
-Redis:
+---
 
-redis-cli ping
+# 47. Sandbox
 
-PostgreSQL:
+O ambiente sandbox deve permitir simular:
 
-pg_isready
+```text
+Payment Created
+Payment Pending
+Payment Confirmed
+Payment Failed
+Webhook
+Settlement
+Settlement Failed
+Refund
+```
 
-API:
+Nenhum fluxo sandbox deve ser interpretado como movimentação financeira real.
 
-pnpm --filter api start
+---
 
-Health:
+# 48. Documentação
 
-curl http://127.0.0.1:3001/health
+A documentação deve ser dividida em:
 
-Swagger:
+```text
+docs/
+│
+├── architecture/
+├── api/
+├── domain/
+├── security/
+├── compliance/
+├── payments/
+├── settlement/
+├── reconciliation/
+├── fx/
+├── blockchain/
+├── sandbox/
+├── developer/
+├── operations/
+├── runbooks/
+└── adr/
+```
 
-http://localhost:3001/docs
-47. Repository
+---
 
-Repositório oficial:
+# 49. Architecture Decision Records
 
-https://github.com/viniamaral2026-cpu/viapay
+Decisões arquiteturais devem ser documentadas através de ADR.
 
-Branch principal:
+Exemplo:
 
-main
-48. Licença
+```text
+ADR-001 — Monorepo Architecture
+ADR-002 — Payment Domain
+ADR-003 — Double Entry Ledger
+ADR-004 — Idempotency
+ADR-005 — Event Driven Processing
+ADR-006 — Settlement Architecture
+ADR-007 — Blockchain Abstraction
+ADR-008 — API Versioning
+ADR-009 — Authentication
+ADR-010 — Authorization
+```
 
-A licença definitiva do projeto deverá ser definida antes da distribuição pública ou comercial.
+---
 
-49. Engineering Principles
+# 50. Segurança de credenciais
 
-O ViaPay deve evoluir como uma plataforma de engenharia financeira, e não apenas como uma API.
+Nunca versionar:
 
-Toda nova funcionalidade deve responder às seguintes perguntas:
+```text
+.env
+.env.local
+API Keys
+Private Keys
+Wallet Secrets
+Database Passwords
+JWT Secrets
+Webhook Secrets
+```
 
-Qual é a regra de negócio?
-Em qual camada ela pertence?
-Qual contrato precisa ser definido?
-Qual infraestrutura implementará esse contrato?
-Como a funcionalidade será testada?
-Como será observada em produção?
-Como será recuperada em caso de falha?
-Como evitar processamento duplicado?
-Como proteger dados sensíveis?
-Como substituir o provedor no futuro?
+Utilizar:
 
-A arquitetura deve privilegiar evolução segura, previsibilidade operacional e baixo acoplamento.
+```text
+.env.example
+Secret Manager
+Vault
+Cloud Secret Manager
+```
 
-ViaPay
+---
 
-Payment Infrastructure • Modular Architecture • TypeScript • Fastify
+# 51. Princípio fundamental
 
-Construído para evoluir de uma infraestrutura local de desenvolvimento para uma plataforma de pagamentos distribuída, observável e preparada para produção.
+O ViaPay deve separar:
+
+```text
+PRESENTATION
+      │
+APPLICATION
+      │
+DOMAIN
+      │
+INFRASTRUCTURE
+```
+
+Dependências devem apontar para dentro.
+
+```text
+Infrastructure ──────► Application
+                           │
+                           ▼
+                         Domain
+```
+
+O domínio não deve depender diretamente de:
+
+```text
+Next.js
+PostgreSQL
+Redis
+RabbitMQ
+Solana
+Provider
+HTTP
+```
+
+Essas dependências devem ser abstraídas.
+
+---
+
+# 52. Status do projeto
+
+O projeto está em desenvolvimento ativo.
+
+É fundamental distinguir:
+
+### Implementado
+
+Componentes, interfaces, contratos e estruturas existentes no repositório.
+
+### Sandbox
+
+Funcionalidades destinadas à simulação e desenvolvimento.
+
+### Em implementação
+
+Componentes que possuem estrutura inicial, mas ainda precisam de integração completa.
+
+### Planejado
+
+Funcionalidades arquiteturalmente previstas, mas que ainda dependem de implementação, parceiros, infraestrutura ou requisitos regulatórios.
+
+O status técnico real deve sempre ser confirmado pelo código, testes e ambiente de execução.
+
+---
+
+# 53. Roadmap
+
+```text
+PHASE 01
+Foundation
+████████████████████
+
+PHASE 02
+Payment Core
+████████████████░░░░
+
+PHASE 03
+Ledger
+██████████████░░░░░░
+
+PHASE 04
+Settlement
+██████████░░░░░░░░░░
+
+PHASE 05
+FX
+████████░░░░░░░░░░░░
+
+PHASE 06
+Blockchain
+██████░░░░░░░░░░░░░░
+
+PHASE 07
+Compliance
+████░░░░░░░░░░░░░░░░
+
+PHASE 08
+Production
+██░░░░░░░░░░░░░░░░░░
+```
+
+---
+
+# 54. Objetivo de produção
+
+Antes de qualquer operação financeira real, o ViaPay deve possuir:
+
+```text
+[ ] Production infrastructure
+[ ] Real payment providers
+[ ] Banking relationships
+[ ] FX providers
+[ ] Liquidity providers
+[ ] Compliance processes
+[ ] KYC/KYB
+[ ] AML
+[ ] Risk engine
+[ ] Security review
+[ ] Penetration testing
+[ ] Disaster recovery
+[ ] Backup strategy
+[ ] Observability
+[ ] Reconciliation
+[ ] Operational runbooks
+[ ] Legal/regulatory validation
+[ ] Production certification
+```
+
+---
+
+# 55. Princípios de engenharia
+
+O ViaPay deve seguir cinco princípios fundamentais:
+
+```text
+1. MONEY MUST BE TRACEABLE
+
+Toda operação financeira deve ser rastreável.
+
+2. STATE MUST BE EXPLICIT
+
+Estados financeiros não devem depender de inferências.
+
+3. OPERATIONS MUST BE IDEMPOTENT
+
+Retries não podem criar operações duplicadas.
+
+4. LEDGER MUST BE CONSISTENT
+
+Débitos e créditos devem permanecer consistentes.
+
+5. EVERYTHING CRITICAL MUST BE AUDITABLE
+
+Operações críticas devem produzir evidências.
+```
+
+---
+
+# 56. Visão final
+
+O objetivo do ViaPay é evoluir de uma plataforma de pagamentos para uma infraestrutura modular capaz de conectar:
+
+```text
+                    ┌──────────────┐
+                    │   MERCHANT   │
+                    └──────┬───────┘
+                           │
+                           ▼
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│    BANKS     │────►│    VIAPAY    │◄────│   PROVIDERS  │
+└──────────────┘     └──────┬───────┘     └──────────────┘
+                             │
+             ┌───────────────┼───────────────┐
+             ▼               ▼               ▼
+          PAYMENTS          FX           LIQUIDITY
+             │               │               │
+             └───────────────┼───────────────┘
+                             ▼
+                        SETTLEMENT
+                             │
+             ┌───────────────┼───────────────┐
+             ▼               ▼               ▼
+          LEDGER       RECONCILIATION      AUDIT
+             │
+             ▼
+        DIGITAL ASSETS
+             │
+             ▼
+          BLOCKCHAIN
+             │
+             ▼
+        MERCHANT WALLET
+```
+
+---
+
+# 57. Disclaimer técnico
+
+O ViaPay é um projeto de infraestrutura tecnológica em desenvolvimento.
+
+A existência de componentes de pagamento, settlement, FX, blockchain ou compliance no código não significa, por si só, autorização para operar como instituição financeira, instituição de pagamento, emissor de moeda eletrônica, provedor de ativos virtuais ou qualquer outra atividade regulada.
+
+A entrada em produção deve depender de:
+
+* análise jurídica;
+* requisitos regulatórios;
+* contratos com parceiros;
+* licenciamento aplicável;
+* políticas de compliance;
+* segurança;
+* certificações;
+* controles operacionais;
+* homologação;
+* auditoria.
+
+---
+
+# 58. Licença
+
+A licença definitiva do projeto deve ser definida conforme o modelo empresarial e de propriedade intelectual do ViaPay.
+
+---
+
+# ViaPay
+
+<p align="center">
+<strong>Payment Settlement Infrastructure</strong>
+</p>
+
+<p align="center">
+Construindo uma camada moderna de infraestrutura para pagamentos,
+liquidação e integração financeira.
+</p>
+
+<p align="center">
+<sub>Engineering-first financial infrastructure.</sub>
+</p>
+
+
