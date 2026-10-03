@@ -2084,5 +2084,44 @@ liquidação e integração financeira.
 <p align="center">
 <sub>Engineering-first financial infrastructure.</sub>
 </p>
+---
 
+# Propósito do ViaPay
+
+O ViaPay nasceu de um problema concreto da infraestrutura global de pagamentos:
+
+> Em muitos países, não existe uma experiência de pagamento instantâneo equivalente àquela proporcionada pelo Pix no Brasil, e transferências financeiras podem envolver múltiplos intermediários, diferentes sistemas, conversões cambiais e processos de liquidação que aumentam a complexidade e o tempo da operação.
+
+O ViaPay foi concebido para construir uma infraestrutura capaz de conectar pagamentos locais à infraestrutura financeira global, buscando proporcionar uma experiência rápida, rastreável, segura e eficiente.
+
+No Brasil, o Pix pode funcionar como um dos trilhos de entrada da operação. A infraestrutura ViaPay atua na camada de processamento e orquestração, podendo coordenar pagamento, ledger, FX, liquidez, compliance, settlement e reconciliation.
+
+Em determinados fluxos internacionais, ativos digitais como USDC podem ser utilizados como mecanismo tecnológico de liquidação, quando permitido pelo produto, pelos parceiros envolvidos e pela legislação aplicável.
+
+O propósito do ViaPay não é substituir sistemas nacionais de pagamento.
+
+É construir uma camada tecnológica capaz de conectar diferentes sistemas financeiros, instituições, moedas, provedores de liquidez e redes de liquidação.
+
+### Visão
+
+**Conectar pagamentos locais à infraestrutura financeira global com velocidade, segurança, rastreabilidade e eficiência.**
+
+### Princípio
+
+**Payment Processing · Payment Orchestration · FX · Liquidity · Settlement · Reconciliation · Financial Infrastructure**
+
+O ViaPay foi projetado para transformar fluxos financeiros complexos em operações tecnológicas estruturadas, auditáveis, interoperáveis e preparadas para integração institucional.
+
+---
+
+## Desenvolvido por
+
+**2026 DEEVO Soluções Financeiras LTDA**  
+
+
+Todos os direitos reservados.
+
+ViaPay é uma plataforma de infraestrutura tecnológica para pagamentos, processamento, orquestração, liquidação e integração financeira.
+
+**© 2026 DEEVO Soluções Financeiras LTDA — CNPJ: 63.187.175/0001-70. Todos os direitos reservados.**
 
