@@ -52,3 +52,13 @@ logs/
 *.bak
 *.backup
 .DS_Store
+
+# Local development / audit artifacts
+/.repair-backups/
+/.route-repair-backups/
+/.sanitation-backups/
+/.web-route-repair-backups/
+/backups/
+/auditoria/
+/audit/
+*.sh
