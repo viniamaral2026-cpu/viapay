@@ -62,3 +62,12 @@ logs/
 /auditoria/
 /audit/
 *.sh
+
+# ==========================================
+# CONFIGURAÇÕES E SKILLS — SOMENTE LOCAL
+# ==========================================
+/.agents/
+/.claude/
+/.cursor/
+/.devin/
+/.github/workflows/
