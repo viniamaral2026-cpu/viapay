@@ -71,3 +71,8 @@ logs/
 /.cursor/
 /.devin/
 /.github/workflows/
+
+# ==========================================
+# DATABASE — SOMENTE LOCAL
+# ==========================================
+/database/
