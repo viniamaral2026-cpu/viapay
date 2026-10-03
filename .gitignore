@@ -9,3 +9,46 @@ coverage/
 .env.*.local
 *.log
 .DS_Store
+
+# ============================================================
+# VIAPAY — ARQUIVOS LOCAIS / TEMPORÁRIOS / BACKUPS
+# ============================================================
+
+.repair-backups/
+.route-repair-backups/
+.sanitation-backups/
+.web-route-repair-backups/
+backups/
+backup/
+
+# Scripts locais de bootstrap/reparo
+scripts/
+*.sh
+
+# Exceções: nenhum shell script deve ser publicado na raiz.
+# Caso futuramente um script precise ser versionado,
+# remova a regra correspondente e faça revisão explícita.
+
+# Build / runtime
+.next/
+.turbo/
+node_modules/
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Ambiente local
+.env
+.env.*
+!.env.example
+
+# Temporários
+*.tmp
+*.temp
+*.bak
+*.backup
+.DS_Store
